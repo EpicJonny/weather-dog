@@ -28,6 +28,8 @@ class App extends React.Component {
 
   refresh = async () => {
     const forecast = await openWeatherApi.getHourlyForecast(process.env.REACT_APP_OPEN_WEATHER_API_KEY);
+    this.setState({ forecast });
+
     forecast.hourly.sort(this.sortForecast);
 
     const today = new Date().toLocaleDateString();
@@ -37,12 +39,12 @@ class App extends React.Component {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowEpoch = new Date(tomorrow.toLocaleDateString()).getTime() / 1000;
 
-    forecast.hourly = forecast.hourly.filter((hourForecast) => hourForecast.dt >= todayEpoch && hourForecast.dt < tomorrowEpoch);
+    const forecastHourly = forecast.hourly.filter((hourForecast) => hourForecast.dt >= todayEpoch && hourForecast.dt < tomorrowEpoch);
 
     const recommendedWalks = [];
     const otherWalks = [];
     const avoidWalks = [];
-    forecast.hourly.forEach((hourlyForecast, i) => {
+    forecastHourly.forEach((hourlyForecast, i) => {
 
       if (i < this.state.walks) {
         recommendedWalks.push(hourlyForecast);
@@ -55,7 +57,6 @@ class App extends React.Component {
       }
     });
 
-    this.setState({ forecast });
     this.setState({ recommendedWalks, otherWalks, avoidWalks });
   }
 
@@ -123,6 +124,17 @@ class App extends React.Component {
 
         <Box p={4}>
           {/* <DatePicker></DatePicker> */}
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>forecast</Typography>
+          {JSON.stringify(this.state.forecast)}
+
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>recommendedWalks</Typography>
+          {JSON.stringify(this.state.recommendedWalks)}
+
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>otherWalks</Typography>
+          {JSON.stringify(this.state.otherWalks)}
+
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>avoidWalks</Typography>
+          {JSON.stringify(this.state.avoidWalks)}
 
           <TextField
             id="outlined-number"
