@@ -14,11 +14,16 @@ class App extends React.Component {
 
   state = {
     forecast: null,
+    forecastHourly: null,
     walks: 2,
     marks: [],
     recommendedWalks: [],
     otherWalks: [],
-    avoidWalks: []
+    avoidWalks: [],
+    today: null,
+    todayEpoch: null,
+    tomorrow: null,
+    tomorrowEpoch: null,
   };
 
   async componentDidMount() {
@@ -33,13 +38,18 @@ class App extends React.Component {
     forecast.hourly.sort(this.sortForecast);
 
     const today = new Date().toLocaleDateString();
+    this.setState({today});
     const todayEpoch = new Date(today).getTime() / 1000;
+    this.setState({todayEpoch});
 
     let tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
+    this.setState({tomorrow});
     const tomorrowEpoch = new Date(tomorrow.toLocaleDateString()).getTime() / 1000;
+    this.setState({tomorrowEpoch});
 
     const forecastHourly = forecast.hourly.filter((hourForecast) => hourForecast.dt >= todayEpoch && hourForecast.dt < tomorrowEpoch);
+    this.setState({forecastHourly});
 
     const recommendedWalks = [];
     const otherWalks = [];
@@ -126,6 +136,21 @@ class App extends React.Component {
           {/* <DatePicker></DatePicker> */}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>forecast</Typography>
           {JSON.stringify(this.state.forecast)}
+
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>today</Typography>
+          {JSON.stringify(this.state.today)}
+
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>todayEpoch</Typography>
+          {JSON.stringify(this.state.todayEpoch)}
+
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>tomorrow</Typography>
+          {JSON.stringify(this.state.tomorrow)}
+
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>tomorrowEpoch</Typography>
+          {JSON.stringify(this.state.tomorrowEpoch)}
+          
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>forecastHourly</Typography>
+          {JSON.stringify(this.state.forecastHourly)}
 
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>recommendedWalks</Typography>
           {JSON.stringify(this.state.recommendedWalks)}
