@@ -1211,4 +1211,21 @@ const sortForecast = () => {
   });
 };
 
-sortForecast();
+
+const sortDate = () => {
+  const exampleDate = '1633348800';
+
+  const today = new Date().toLocaleDateString();
+  const todayEpoch = new Date(today).getTime()/1000;
+
+  let tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate()+1);
+  const tomorrowEpoch = new Date(tomorrow.toLocaleDateString()).getTime()/1000;
+
+  console.log('exampleDate: ', exampleDate);
+  console.log('todayEpoch: ', String(todayEpoch));
+  console.log('tomorrowEpoch: ', String(tomorrowEpoch));
+}
+
+sortDate();
+// sortForecast();

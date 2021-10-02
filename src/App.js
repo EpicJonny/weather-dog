@@ -1,25 +1,20 @@
 import * as React from 'react';
-
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import Divider from '@mui/material/Divider';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
 import openWeatherApi from './services/openWeatherAPI';
 import DatePicker from './components/DatePicker';
-import Accordian from './components/Accordian';
+import SimpleAccordion from './components/Accordian';
+import logo from './Weather Dog-logos.jpeg';
 
-import { Slider, AppBar, Toolbar, TextField } from '@mui/material';
+import { Slider, AppBar, Toolbar, TextField, Paper } from '@mui/material';
 require('dotenv').config();
 
 class App extends React.Component {
 
   state = {
     forecast: null,
+    walks: 2,
     marks: [],
     recommendedWalks: [],
     otherWalks: [],
@@ -28,11 +23,40 @@ class App extends React.Component {
 
   async componentDidMount() {
     this.populateMarks();
+    await this.refresh();
+  }
+
+  refresh = async () => {
     const forecast = await openWeatherApi.getHourlyForecast(process.env.REACT_APP_OPEN_WEATHER_API_KEY);
     forecast.hourly.sort(this.sortForecast);
-    console.log(forecast);
+
+    const today = new Date().toLocaleDateString();
+    const todayEpoch = new Date(today).getTime() / 1000;
+
+    let tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowEpoch = new Date(tomorrow.toLocaleDateString()).getTime() / 1000;
+
+    forecast.hourly = forecast.hourly.filter((hourForecast) => hourForecast.dt >= todayEpoch && hourForecast.dt < tomorrowEpoch);
+
+    const recommendedWalks = [];
+    const otherWalks = [];
+    const avoidWalks = [];
+    forecast.hourly.forEach((hourlyForecast, i) => {
+
+      if (i < this.state.walks) {
+        recommendedWalks.push(hourlyForecast);
+      } else {
+        if (hourlyForecast.rain || hourlyForecast.snow) {
+          avoidWalks.push(hourlyForecast);
+        } else {
+          otherWalks.push(hourlyForecast);
+        }
+      }
+    });
 
     this.setState({ forecast });
+    this.setState({ recommendedWalks, otherWalks, avoidWalks });
   }
 
   sortForecast = (a, b) => {
@@ -62,7 +86,7 @@ class App extends React.Component {
     }
 
     // Precipitation
-    if (a.pop > 0.5) {
+    if (a.pop > 0.5 || b.pop > 0.5) {
       return (a.pop - b.pop);
     }
 
@@ -82,51 +106,9 @@ class App extends React.Component {
     this.setState({ marks });
   }
 
-  convertDate = (dt) => {
-    const options = { hour: 'numeric', minute: 'numeric' };
-    const currentHour = new Date(dt * 1000).toLocaleDateString("en-UK", options);
-
-    return currentHour;
-  }
-
-  listRows = (forecast) => {
-    console.log(forecast);
-    if (forecast && forecast.hourly) {
-      let rows = [];
-      forecast.hourly.map((object, i) => {
-        rows.push(<Box key={i}>
-          <ListItem alignItems="flex-start">
-            <ListItemAvatar>
-              <Avatar alt="Remy Sharp" src={`https://openweathermap.org/img/wn/${object.weather[0].icon}@2x.png`} />
-            </ListItemAvatar>
-            <ListItemText
-              primary={this.convertDate(object.dt)}
-              secondary={
-                <React.Fragment>
-                  <Typography>
-                    Temperature: {object.temp}&#8451;
-                  </Typography>
-                  <Typography>
-                    feels_like: {object.feels_like}&#8451;
-                  </Typography>
-                  <Typography>
-                    humidity: {object.humidity}%
-                  </Typography>
-                  <Typography>
-                    wind_speed: {object.wind_speed} metre/sec
-                  </Typography>
-                  <Typography>
-                    Precipitation: {object.pop * 100}%
-                  </Typography>
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-        </Box>);
-      });
-      return rows;
-    }
+  async handleChange(e) {
+    this.setState({ walks: e.target.value });
+    await this.refresh();
   }
 
   render() {
@@ -141,7 +123,7 @@ class App extends React.Component {
         </AppBar>
 
         <Box p={4}>
-          <DatePicker></DatePicker>
+          {/* <DatePicker></DatePicker> */}
 
           <TextField
             id="outlined-number"
@@ -150,26 +132,27 @@ class App extends React.Component {
             InputLabelProps={{
               shrink: true,
             }}
+            onChange={(e) => { this.handleChange(e) }}
+            defaultValue={this.state.walks}
           />
 
           <Box p={4}>
-            <Slider sx={{ width: '100%', maxWidth: 560, bgcolor: 'background.paper' }}
+            {/* <Slider sx={{ width: '100%', maxWidth: 560, bgcolor: 'background.paper' }}
               defaultValue={[9, 17]}
               step={1}
               min={0}
               max={23}
               valueLabelDisplay="auto"
             // marks={this.state.marks}
-            />
+            /> */}
           </Box>
 
           <Box>
-            <Accordian></Accordian>
+            <SimpleAccordion
+              recommendedWalks={this.state.recommendedWalks}
+              otherWalks={this.state.otherWalks}
+              avoidWalks={this.state.avoidWalks}></SimpleAccordion>
           </Box>
-
-          <List sx={{ width: '100%', maxWidth: 560, bgcolor: 'background.paper' }}>
-            {this.state.forecast && this.listRows(this.state.forecast)}
-          </List>
         </Box>
       </Box>
     );
