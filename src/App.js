@@ -23,6 +23,7 @@ class App extends React.Component {
 
   async componentDidMount() {
     this.populateMarks();
+    this.refresh();
   }
 
   refresh = async () => {
@@ -132,9 +133,10 @@ class App extends React.Component {
             }}
             onChange={(e) => { this.handleChange(e) }}
             defaultValue={this.state.walks}
+            className="clickable"
           />
 
-          <Button variant="contained" onClick={this.refresh}>Search</Button>
+          <Button variant="contained" className="clickable" onClick={this.refresh}>Search</Button>
 
           <Box p={4}>
             {/* <Slider sx={{ width: '100%', maxWidth: 560, bgcolor: 'background.paper' }}
