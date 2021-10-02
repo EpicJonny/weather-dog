@@ -7,7 +7,7 @@ import DatePicker from './components/DatePicker';
 import SimpleAccordion from './components/Accordian';
 import logo from './Weather Dog-logos.jpeg';
 
-import { Slider, AppBar, Toolbar, TextField, Paper } from '@mui/material';
+import { Slider, AppBar, Toolbar, TextField, Paper, Button } from '@mui/material';
 require('dotenv').config();
 
 class App extends React.Component {
@@ -23,7 +23,6 @@ class App extends React.Component {
 
   async componentDidMount() {
     this.populateMarks();
-    await this.refresh();
   }
 
   refresh = async () => {
@@ -108,7 +107,6 @@ class App extends React.Component {
 
   async handleChange(e) {
     this.setState({ walks: e.target.value });
-    await this.refresh();
   }
 
   render() {
@@ -135,6 +133,8 @@ class App extends React.Component {
             onChange={(e) => { this.handleChange(e) }}
             defaultValue={this.state.walks}
           />
+
+          <Button variant="contained" onClick={this.refresh}>Search</Button>
 
           <Box p={4}>
             {/* <Slider sx={{ width: '100%', maxWidth: 560, bgcolor: 'background.paper' }}
