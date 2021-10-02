@@ -29,32 +29,45 @@ class App extends React.Component {
   async componentDidMount() {
     this.populateMarks();
     const forecast = await openWeatherApi.getHourlyForecast(process.env.REACT_APP_OPEN_WEATHER_API_KEY);
-    this.sortForecast(forecast);
+    forecast.hourly.sort(this.sortForecast);
+    console.log(forecast);
 
     this.setState({ forecast });
   }
 
-  sortForecast = (forecast) => {
-    const forecasts = forecast.slice(0);
-    let recommendedWalks;
-    let otherWalks;
-    let avoidWalks;
+  sortForecast = (a, b) => {
 
-    avoidWalksforecast.filter(hourlyForecast => hourlyForecast.rain);
+    // Snow
+    if (a.snow && !b.snow) {
+      return 1;
+    } else if (b.snow && !a.snow) {
+      return -1;
+    } else if (a.snow && b.snow) {
+      if (a.snow['1h'] === b.snow['1h']) {
+        return b.feels_like - a.feels_like;
+      }
+      return a.snow['1h'] - b.snow['1h'];
+    }
 
-    // Check how many walks needed
-    // Check if sunny/cloudy
-    // Check hours
+    // Rain
+    if (a.rain && !b.rain) {
+      return 1;
+    } else if (b.rain && !a.rain) {
+      return -1;
+    } else if (a.rain && b.rain) {
+      if (a.rain['1h'] === b.rain['1h']) {
+        return b.feels_like - a.feels_like;
+      }
+      return a.rain['1h'] - b.rain['1h'];
+    }
 
-    // Loop through forecasts
-    // Remove hours outside of range
-    // Check how many rain, snow and too hot
-    // If walks left > walks needed move to avoid
+    // Precipitation
+    if (a.pop > 0.5) {
+      return (a.pop - b.pop);
+    }
 
-    // Check hottest walks and lowest chance of precipitation
-    // Move to recommended walks
-
-    // Others move to otherWalks
+    // Temp
+    return b.feels_like - a.feels_like;
   };
 
   populateMarks = () => {
