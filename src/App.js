@@ -7,7 +7,7 @@ import DatePicker from './components/DatePicker';
 import SimpleAccordion from './components/Accordian';
 import logo from './Weather Dog-logos.jpeg';
 
-import { Slider, AppBar, Toolbar, TextField, Paper, Button } from '@mui/material';
+import { Slider, AppBar, Toolbar, TextField, Paper, Button, Grid } from '@mui/material';
 require('dotenv').config();
 
 class App extends React.Component {
@@ -33,23 +33,18 @@ class App extends React.Component {
 
   refresh = async () => {
     const forecast = await openWeatherApi.getHourlyForecast(process.env.REACT_APP_OPEN_WEATHER_API_KEY);
-    this.setState({ forecast });
 
     forecast.hourly.sort(this.sortForecast);
 
-    const today = new Date().toLocaleDateString();
-    this.setState({today});
+    const today = new Date().toLocaleDateString('en-US');
     const todayEpoch = new Date(today).getTime() / 1000;
-    this.setState({todayEpoch});
 
     let tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    this.setState({tomorrow});
-    const tomorrowEpoch = new Date(tomorrow.toLocaleDateString()).getTime() / 1000;
-    this.setState({tomorrowEpoch});
+    const tomorrowEpoch = new Date(tomorrow.toLocaleDateString('en-US')).getTime() / 1000;
 
     const forecastHourly = forecast.hourly.filter((hourForecast) => hourForecast.dt >= todayEpoch && hourForecast.dt < tomorrowEpoch);
-    this.setState({forecastHourly});
+    this.setState({ forecastHourly });
 
     const recommendedWalks = [];
     const otherWalks = [];
@@ -134,46 +129,24 @@ class App extends React.Component {
 
         <Box p={4}>
           {/* <DatePicker></DatePicker> */}
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>forecast</Typography>
-          {JSON.stringify(this.state.forecast)}
-
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>today</Typography>
-          {JSON.stringify(this.state.today)}
-
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>todayEpoch</Typography>
-          {JSON.stringify(this.state.todayEpoch)}
-
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>tomorrow</Typography>
-          {JSON.stringify(this.state.tomorrow)}
-
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>tomorrowEpoch</Typography>
-          {JSON.stringify(this.state.tomorrowEpoch)}
-          
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>forecastHourly</Typography>
-          {JSON.stringify(this.state.forecastHourly)}
-
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>recommendedWalks</Typography>
-          {JSON.stringify(this.state.recommendedWalks)}
-
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>otherWalks</Typography>
-          {JSON.stringify(this.state.otherWalks)}
-
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>avoidWalks</Typography>
-          {JSON.stringify(this.state.avoidWalks)}
-
-          <TextField
-            id="outlined-number"
-            label="How many walks"
-            type="number"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onChange={(e) => { this.handleChange(e) }}
-            defaultValue={this.state.walks}
-            className="clickable"
-          />
-
-          <Button variant="contained" className="clickable" onClick={this.refresh}>Search</Button>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <TextField
+                id="outlined-number"
+                label="How many walks"
+                type="number"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                onChange={(e) => { this.handleChange(e) }}
+                defaultValue={this.state.walks}
+                className="clickable"
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Button variant="contained" className="clickable" onClick={this.refresh}>Search</Button>
+            </Grid>
+          </Grid>
 
           <Box p={4}>
             {/* <Slider sx={{ width: '100%', maxWidth: 560, bgcolor: 'background.paper' }}
